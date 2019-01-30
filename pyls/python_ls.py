@@ -2,6 +2,7 @@
 import logging
 import socketserver
 import threading
+from multiprocessing import dummy as multiprocessing
 
 from pyls_jsonrpc.dispatchers import MethodDispatcher
 from pyls_jsonrpc.endpoint import Endpoint
@@ -13,10 +14,10 @@ from .workspace import Workspace
 
 log = logging.getLogger(__name__)
 
-
 LINT_DEBOUNCE_S = 0.5  # 500 ms
 PARENT_PROCESS_WATCH_INTERVAL = 10  # 10 s
 MAX_WORKERS = 64
+PLUGGY_RACE_POOL_SIZE = 5
 
 
 class _StreamHandlerWrapper(socketserver.StreamRequestHandler, object):
@@ -111,11 +112,15 @@ class PythonLanguageServer(MethodDispatcher):
         self._jsonrpc_stream_reader.close()
         self._jsonrpc_stream_writer.close()
 
+    def _hook_caller(self, hook_name):
+        return self.config.plugin_manager.subset_hook_caller(hook_name, self.config.disabled_plugins)
+
     def _hook(self, hook_name, doc_uri=None, **kwargs):
         """Calls hook_name and returns a list of results from all registered handlers"""
         doc = self.workspace.get_document(doc_uri) if doc_uri else None
-        hook_handlers = self.config.plugin_manager.subset_hook_caller(hook_name, self.config.disabled_plugins)
-        return hook_handlers(config=self.config, workspace=self.workspace, document=doc, **kwargs)
+        return self._hook_caller(hook_name)(config=self.config,
+                                            workspace=self.workspace,
+                                            document=doc, **kwargs)
 
     def capabilities(self):
         server_capabilities = {
@@ -155,6 +160,7 @@ class PythonLanguageServer(MethodDispatcher):
         self.workspace = Workspace(rootUri, self._endpoint)
         self.config = config.Config(rootUri, initializationOptions or {}, processId)
         self._dispatchers = self._hook('pyls_dispatchers')
+        self._pool = multiprocessing.Pool(PLUGGY_RACE_POOL_SIZE)
         self._hook('pyls_initialize')
 
         if self._check_parent_process and processId is not None:
@@ -183,7 +189,12 @@ class PythonLanguageServer(MethodDispatcher):
         return flatten(self._hook('pyls_code_lens', doc_uri))
 
     def completions(self, doc_uri, position):
-        completions = self._hook('pyls_completions', doc_uri, position=position)
+        # completions = self._hook('pyls_completions', doc_uri, position=position)
+        completions = _utils.race_hooks(
+            self._hook_caller('pyls_completions'), self._pool,
+            document=self.workspace.get_document(doc_uri) if doc_uri else None,
+            position=position
+        )
         return {
             'isIncomplete': False,
             'items': flatten(completions)
