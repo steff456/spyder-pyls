@@ -21,7 +21,8 @@ def pyls_completions(document, position, config=None, workspace=None):
     word = document.word_at_position({
         # The -1 should really be trying to look at the previous word, but that might be quite expensive
         # So we only skip import completions when the cursor is one space after `import`
-        'line': position['line'], 'character': max(position['character'] - 1, 0),
+        'line': position['line'],
+        'character': max(position['character'] - 1, 0),
     })
     if word == 'import':
         return None
@@ -32,7 +33,8 @@ def pyls_completions(document, position, config=None, workspace=None):
     document_rope = document._rope_resource(rope_config)
 
     try:
-        definitions = code_assist(rope_project, document.source, offset, document_rope, maxfixes=3)
+        definitions = code_assist(rope_project, document.source, offset,
+                                  document_rope, maxfixes=3)
     except Exception as e:  # pylint: disable=broad-except
         log.debug("Failed to run Rope code assist: %s", e)
         return []
@@ -53,7 +55,9 @@ def pyls_completions(document, position, config=None, workspace=None):
         })
     definitions = new_definitions
     log.debug('Finish Rope!!!')
-    return definitions or None
+    if not definitions:
+        return None
+    return definitions
 
 
 def _sort_text(definition):
