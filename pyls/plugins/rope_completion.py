@@ -25,7 +25,7 @@ def pyls_completions(document, position, config=None, workspace=None):
         'character': max(position['character'] - 1, 0),
     })
     if word == 'import':
-        return None
+        return []
 
     offset = document.offset_at_position(position)
     rope_config = config.settings(document_path=document.path).get('rope', {})
@@ -56,7 +56,7 @@ def pyls_completions(document, position, config=None, workspace=None):
     definitions = new_definitions
     log.debug('Finish Rope!!!')
     if not definitions:
-        return None
+        return []
     return definitions
 
 
