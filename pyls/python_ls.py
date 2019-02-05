@@ -152,13 +152,16 @@ class PythonLanguageServer(MethodDispatcher):
         log.info('Server capabilities: %s', server_capabilities)
         return server_capabilities
 
-    def m_initialize(self, processId=None, rootUri=None, rootPath=None, initializationOptions=None, **_kwargs):
-        log.debug('Language server initialized with %s %s %s %s', processId, rootUri, rootPath, initializationOptions)
+    def m_initialize(self, processId=None, rootUri=None, rootPath=None,
+                     initializationOptions=None, **_kwargs):
+        log.debug('Language server initialized with %s %s %s %s', processId,
+                  rootUri, rootPath, initializationOptions)
         if rootUri is None:
             rootUri = uris.from_fs_path(rootPath) if rootPath is not None else ''
 
         self.workspace = Workspace(rootUri, self._endpoint)
-        self.config = config.Config(rootUri, initializationOptions or {}, processId)
+        self.config = config.Config(rootUri, initializationOptions or {},
+                                    processId)
         self._dispatchers = self._hook('pyls_dispatchers')
         self._pool = multiprocessing.Pool(PLUGGY_RACE_POOL_SIZE)
         self._hook('pyls_initialize')
@@ -170,9 +173,11 @@ class PythonLanguageServer(MethodDispatcher):
                     log.info("parent process %s is not alive", pid)
                     self.m_exit()
                 log.debug("parent process %s is still alive", pid)
-                threading.Timer(PARENT_PROCESS_WATCH_INTERVAL, watch_parent_process, args=[pid]).start()
+                threading.Timer(PARENT_PROCESS_WATCH_INTERVAL,
+                                watch_parent_process, args=[pid]).start()
 
-            watching_thread = threading.Thread(target=watch_parent_process, args=(processId,))
+            watching_thread = threading.Thread(target=watch_parent_process,
+                                               args=(processId,))
             watching_thread.daemon = True
             watching_thread.start()
 
@@ -183,15 +188,22 @@ class PythonLanguageServer(MethodDispatcher):
         pass
 
     def code_actions(self, doc_uri, range, context):
-        return flatten(self._hook('pyls_code_actions', doc_uri, range=range, context=context))
+        return flatten(self._hook('pyls_code_actions', doc_uri, range=range,
+                                  context=context))
 
     def code_lens(self, doc_uri):
         return flatten(self._hook('pyls_code_lens', doc_uri))
 
     def completions(self, doc_uri, position):
+        print('Llega la petición!!!!!!')
         # completions = self._hook('pyls_completions', doc_uri, position=position)
+        # completions = _utils.race_hooks(
+        #     self._hook_caller('pyls_completions'), self._pool,
+        #     document=self.workspace.get_document(doc_uri) if doc_uri else None,
+        #     position=position
         completions = _utils.race_hooks(
-            self._hook_caller('pyls_completions'), self._pool,
+            self._hook('pyls_completions', doc_uri, position=position),
+            self.pool,
             document=self.workspace.get_document(doc_uri) if doc_uri else None,
             position=position
         )
@@ -201,13 +213,15 @@ class PythonLanguageServer(MethodDispatcher):
         }
 
     def definitions(self, doc_uri, position):
-        return flatten(self._hook('pyls_definitions', doc_uri, position=position))
+        return flatten(self._hook('pyls_definitions', doc_uri,
+                                  position=position))
 
     def document_symbols(self, doc_uri):
         return flatten(self._hook('pyls_document_symbols', doc_uri))
 
     def execute_command(self, command, arguments):
-        return self._hook('pyls_execute_command', command=command, arguments=arguments)
+        return self._hook('pyls_execute_command', command=command,
+                          arguments=arguments)
 
     def format_document(self, doc_uri):
         return self._hook('pyls_format_document', doc_uri)
@@ -216,7 +230,8 @@ class PythonLanguageServer(MethodDispatcher):
         return self._hook('pyls_format_range', doc_uri, range=range)
 
     def highlight(self, doc_uri, position):
-        return flatten(self._hook('pyls_document_highlight', doc_uri, position=position)) or None
+        return flatten(self._hook('pyls_document_highlight', doc_uri,
+                       position=position)) or None
 
     def hover(self, doc_uri, position):
         return self._hook('pyls_hover', doc_uri, position=position) or {'contents': ''}
@@ -225,7 +240,9 @@ class PythonLanguageServer(MethodDispatcher):
     def lint(self, doc_uri):
         # Since we're debounced, the document may no longer be open
         if doc_uri in self.workspace.documents:
-            self.workspace.publish_diagnostics(doc_uri, flatten(self._hook('pyls_lint', doc_uri)))
+            self.workspace.publish_diagnostics(doc_uri,
+                                               flatten(self._hook('pyls_lint',
+                                                                  doc_uri)))
 
     def references(self, doc_uri, position, exclude_declaration):
         return flatten(self._hook(
@@ -234,7 +251,8 @@ class PythonLanguageServer(MethodDispatcher):
         ))
 
     def rename(self, doc_uri, position, new_name):
-        return self._hook('pyls_rename', doc_uri, position=position, new_name=new_name)
+        return self._hook('pyls_rename', doc_uri, position=position,
+                          new_name=new_name)
 
     def signature_help(self, doc_uri, position):
         return self._hook('pyls_signature_help', doc_uri, position=position)
@@ -243,11 +261,13 @@ class PythonLanguageServer(MethodDispatcher):
         self.workspace.rm_document(textDocument['uri'])
 
     def m_text_document__did_open(self, textDocument=None, **_kwargs):
-        self.workspace.put_document(textDocument['uri'], textDocument['text'], version=textDocument.get('version'))
+        self.workspace.put_document(textDocument['uri'], textDocument['text'],
+                                    version=textDocument.get('version'))
         self._hook('pyls_document_did_open', textDocument['uri'])
         self.lint(textDocument['uri'])
 
-    def m_text_document__did_change(self, contentChanges=None, textDocument=None, **_kwargs):
+    def m_text_document__did_change(self, contentChanges=None,
+                                    textDocument=None, **_kwargs):
         for change in contentChanges:
             self.workspace.update_document(
                 textDocument['uri'],
@@ -259,43 +279,54 @@ class PythonLanguageServer(MethodDispatcher):
     def m_text_document__did_save(self, textDocument=None, **_kwargs):
         self.lint(textDocument['uri'])
 
-    def m_text_document__code_action(self, textDocument=None, range=None, context=None, **_kwargs):
+    def m_text_document__code_action(self, textDocument=None, range=None,
+                                     context=None, **_kwargs):
         return self.code_actions(textDocument['uri'], range, context)
 
     def m_text_document__code_lens(self, textDocument=None, **_kwargs):
         return self.code_lens(textDocument['uri'])
 
-    def m_text_document__completion(self, textDocument=None, position=None, **_kwargs):
+    def m_text_document__completion(self, textDocument=None, position=None,
+                                    **_kwargs):
         return self.completions(textDocument['uri'], position)
 
-    def m_text_document__definition(self, textDocument=None, position=None, **_kwargs):
+    def m_text_document__definition(self, textDocument=None, position=None,
+                                    **_kwargs):
         return self.definitions(textDocument['uri'], position)
 
-    def m_text_document__document_highlight(self, textDocument=None, position=None, **_kwargs):
+    def m_text_document__document_highlight(self, textDocument=None,
+                                            position=None, **_kwargs):
         return self.highlight(textDocument['uri'], position)
 
-    def m_text_document__hover(self, textDocument=None, position=None, **_kwargs):
+    def m_text_document__hover(self, textDocument=None, position=None,
+                               **_kwargs):
         return self.hover(textDocument['uri'], position)
 
     def m_text_document__document_symbol(self, textDocument=None, **_kwargs):
         return self.document_symbols(textDocument['uri'])
 
-    def m_text_document__formatting(self, textDocument=None, _options=None, **_kwargs):
+    def m_text_document__formatting(self, textDocument=None, _options=None,
+                                    **_kwargs):
         # For now we're ignoring formatting options.
         return self.format_document(textDocument['uri'])
 
-    def m_text_document__rename(self, textDocument=None, position=None, newName=None, **_kwargs):
+    def m_text_document__rename(self, textDocument=None, position=None,
+                                newName=None, **_kwargs):
         return self.rename(textDocument['uri'], position, newName)
 
-    def m_text_document__range_formatting(self, textDocument=None, range=None, _options=None, **_kwargs):
+    def m_text_document__range_formatting(self, textDocument=None, range=None,
+                                          _options=None, **_kwargs):
         # Again, we'll ignore formatting options for now.
         return self.format_range(textDocument['uri'], range)
 
-    def m_text_document__references(self, textDocument=None, position=None, context=None, **_kwargs):
+    def m_text_document__references(self, textDocument=None, position=None,
+                                    context=None, **_kwargs):
         exclude_declaration = not context['includeDeclaration']
-        return self.references(textDocument['uri'], position, exclude_declaration)
+        return self.references(textDocument['uri'], position,
+                               exclude_declaration)
 
-    def m_text_document__signature_help(self, textDocument=None, position=None, **_kwargs):
+    def m_text_document__signature_help(self, textDocument=None, position=None,
+                                        **_kwargs):
         return self.signature_help(textDocument['uri'], position)
 
     def m_workspace__did_change_configuration(self, settings=None):
