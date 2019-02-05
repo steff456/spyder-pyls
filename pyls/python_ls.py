@@ -195,25 +195,18 @@ class PythonLanguageServer(MethodDispatcher):
         return flatten(self._hook('pyls_code_lens', doc_uri))
 
     def completions(self, doc_uri, position):
-        print('Llega la petición!!!!!!')
-        # completions = self._hook('pyls_completions', doc_uri, position=position)
         completions = _utils.race_hooks(
             self._hook_caller('pyls_completions'),
-            # self._hook('pyls_completions', doc_uri, position=position),
             self._pool,
             document=self.workspace.get_document(doc_uri) if doc_uri else None,
             position=position,
             config=self.config,
             workspace=self.workspace
-        # completions = _utils.race_hooks(
-        #     self._hook('pyls_completions', doc_uri, position=position),
-        #     self.pool,
-        #     document=self.workspace.get_document(doc_uri) if doc_uri else None,
-        #     position=position
         )
+        log.debug('Final Completions: %s', completions)
         return {
             'isIncomplete': False,
-            'items': flatten(completions)
+            'items': completions
         }
 
     def definitions(self, doc_uri, position):

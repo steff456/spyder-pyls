@@ -9,7 +9,7 @@ log = logging.getLogger(__name__)
 def pyls_completions(document, position, config=None, workspace=None):
     log.debug('Launch Jedi ...')
     definitions = document.jedi_script(position).completions()
-    return [{
+    comp = [{
         'label': _label(d),
         'kind': _kind(d),
         'detail': _detail(d),
@@ -17,6 +17,8 @@ def pyls_completions(document, position, config=None, workspace=None):
         'sortText': _sort_text(d),
         'insertText': d.name
     } for d in definitions] or None
+    log.debug('Finish Jedi!')
+    return comp
 
 
 def _label(definition):

@@ -145,7 +145,6 @@ def race_hooks(hook_caller, pool, **kwargs):
         return None
 
     def _apply(impl):
-        log.debug('&&&&& KWARGSSS: {}'.format(kwargs))
         return impl, impl.function(**kwargs)
 
     # imap unordered gives us an iterator over the items in the order they finish.

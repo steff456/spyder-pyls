@@ -52,7 +52,7 @@ def pyls_completions(document, position, config=None, workspace=None):
             'sortText': _sort_text(d)
         })
     definitions = new_definitions
-
+    log.debug('Finish Rope!!!')
     return definitions or None
 
 
