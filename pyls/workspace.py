@@ -29,7 +29,7 @@ def get_preferred_submodules():
             'nt', 'operator', 'parser', 'rgbimg', 'signal',
             'strop', 'sys', 'thread', 'time', 'wx', 'xxsubtype',
             'zipimport', 'zlib', 'nose', 'os.path']
-    
+
     submodules = []
     for mod in mods:
         submods = get_submodules(mod)
@@ -93,7 +93,6 @@ class Workspace(object):
             # self.__rope.prefs.set('extension_modules',
             #                       rope_config.get('extensionModules', []))
             # TODO: check if the modules are faster.
-            self.__rope.prefs.set('extension_modules', self.PRELOADED_MODULES)
             self.__rope.prefs.set('ignore_syntax_errors', True)
             self.__rope.prefs.set('ignore_bad_imports', True)
         self.__rope.validate()
@@ -271,7 +270,8 @@ class Document(object):
         if position:
             kwargs['line'] = position['line'] + 1
             kwargs['column'] = _utils.clip_column(position['character'],
-                               self.lines, position['line'])
+                                                  self.lines,
+                                                  position['line'])
         return jedi.Script(**kwargs)
 
     def sys_path(self):

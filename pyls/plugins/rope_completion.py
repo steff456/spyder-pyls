@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 @hookimpl
 def pyls_settings():
     # Default rope_completion to disabled
-    return {'plugins': {'rope_completion': {'enabled': False}}}
+    return {'plugins': {'rope_completion': {'enabled': True}}}
 
 
 @hookimpl

@@ -203,7 +203,6 @@ class PythonLanguageServer(MethodDispatcher):
             config=self.config,
             workspace=self.workspace
         )
-        log.debug('Final Completions: %s', completions)
         return {
             'isIncomplete': False,
             'items': completions
