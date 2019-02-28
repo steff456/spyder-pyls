@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 @hookimpl
 def pyls_settings():
     # Default rope_completion to disabled
-    return {'plugins': {'rope_completion': {'enabled': True}}}
+    return {'plugins': {'rope_completion': {'enabled': False}}}
 
 
 @hookimpl
@@ -33,8 +33,7 @@ def pyls_completions(document, position, config=None, workspace=None):
     document_rope = document._rope_resource(rope_config)
 
     try:
-        definitions = code_assist(rope_project, document.source, offset,
-                                  document_rope, maxfixes=3)
+        definitions = code_assist(rope_project, document.source, offset, document_rope, maxfixes=3)
     except Exception as e:  # pylint: disable=broad-except
         log.debug("Failed to run Rope code assist: %s", e)
         return []

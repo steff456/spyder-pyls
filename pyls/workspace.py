@@ -17,60 +17,11 @@ RE_START_WORD = re.compile('[A-Za-z_0-9]*$')
 RE_END_WORD = re.compile('^[A-Za-z_0-9]*')
 
 
-def get_preferred_submodules():
-    """Load preferred submodules."""
-    mods = ['numpy', 'scipy', 'sympy', 'pandas',
-            'networkx', 'statsmodels', 'matplotlib', 'sklearn',
-            'skimage', 'mpmath', 'os', 'PIL',
-            'OpenGL', 'array', 'audioop', 'binascii', 'cPickle',
-            'cStringIO', 'cmath', 'collections', 'datetime',
-            'errno', 'exceptions', 'gc', 'imageop', 'imp',
-            'itertools', 'marshal', 'math', 'mmap', 'msvcrt',
-            'nt', 'operator', 'parser', 'rgbimg', 'signal',
-            'strop', 'sys', 'thread', 'time', 'wx', 'xxsubtype',
-            'zipimport', 'zlib', 'nose', 'os.path']
-
-    submodules = []
-    for mod in mods:
-        submods = get_submodules(mod)
-        submodules += submods
-
-    actual = []
-    for submod in submodules:
-        try:
-            imp.find_module(submod)
-            actual.append(submod)
-        except ImportError:
-            pass
-
-    return actual
-
-
-def get_submodules(mod):
-    """Get all submodules of a given module."""
-    def catch_exceptions(module):
-        pass
-    try:
-        m = __import__(mod)
-        submodules = [mod]
-        submods = pkgutil.walk_packages(m.__path__, m.__name__ + '.',
-                                        catch_exceptions)
-        for sm in submods:
-            sm_name = sm[1]
-            submodules.append(sm_name)
-    except ImportError:
-        return []
-    except Exception:
-        return [mod]
-    return submodules
-
-
 class Workspace(object):
 
     M_PUBLISH_DIAGNOSTICS = 'textDocument/publishDiagnostics'
     M_APPLY_EDIT = 'workspace/applyEdit'
     M_SHOW_MESSAGE = 'window/showMessage'
-    PRELOADED_MODULES = get_preferred_submodules()
 
     def __init__(self, root_uri, endpoint):
         self._root_uri = root_uri
@@ -90,9 +41,7 @@ class Workspace(object):
         if self.__rope is None or self.__rope_config != rope_config:
             rope_folder = rope_config.get('ropeFolder')
             self.__rope = Project(self._root_path, ropefolder=rope_folder)
-            # self.__rope.prefs.set('extension_modules',
-            #                       rope_config.get('extensionModules', []))
-            # TODO: check if the modules are faster.
+            self.__rope.prefs.set('extension_modules', rope_config.get('extensionModules', []))
             self.__rope.prefs.set('ignore_syntax_errors', True)
             self.__rope.prefs.set('ignore_bad_imports', True)
         self.__rope.validate()
@@ -121,8 +70,7 @@ class Workspace(object):
         return self._docs.get(doc_uri) or self._create_document(doc_uri)
 
     def put_document(self, doc_uri, source, version=None):
-        self._docs[doc_uri] = self._create_document(doc_uri, source=source,
-                                                    version=version)
+        self._docs[doc_uri] = self._create_document(doc_uri, source=source, version=version)
 
     def rm_document(self, doc_uri):
         self._docs.pop(doc_uri)
@@ -135,18 +83,14 @@ class Workspace(object):
         return self._endpoint.request(self.M_APPLY_EDIT, {'edit': edit})
 
     def publish_diagnostics(self, doc_uri, diagnostics):
-        self._endpoint.notify(self.M_PUBLISH_DIAGNOSTICS,
-                              params={'uri': doc_uri,
-                                      'diagnostics': diagnostics})
+        self._endpoint.notify(self.M_PUBLISH_DIAGNOSTICS, params={'uri': doc_uri, 'diagnostics': diagnostics})
 
     def show_message(self, message, msg_type=lsp.MessageType.Info):
-        self._endpoint.notify(self.M_SHOW_MESSAGE, params={'type': msg_type,
-                                                           'message': message})
+        self._endpoint.notify(self.M_SHOW_MESSAGE, params={'type': msg_type, 'message': message})
 
     def source_roots(self, document_path):
         """Return the source roots for the given document."""
-        files = _utils.find_parents(self._root_path, document_path,
-                                    ['setup.py']) or []
+        files = _utils.find_parents(self._root_path, document_path, ['setup.py']) or []
         return [os.path.dirname(setup_py) for setup_py in files]
 
     def _create_document(self, doc_uri, source=None, version=None):
@@ -160,8 +104,7 @@ class Workspace(object):
 
 class Document(object):
 
-    def __init__(self, uri, source=None, version=None, local=True,
-                 extra_sys_path=None, rope_project_builder=None):
+    def __init__(self, uri, source=None, version=None, local=True, extra_sys_path=None, rope_project_builder=None):
         self.uri = uri
         self.version = version
         self.path = uris.to_fs_path(uri)
@@ -269,9 +212,7 @@ class Document(object):
         }
         if position:
             kwargs['line'] = position['line'] + 1
-            kwargs['column'] = _utils.clip_column(position['character'],
-                                                  self.lines,
-                                                  position['line'])
+            kwargs['column'] = _utils.clip_column(position['character'], self.lines, position['line'])
         return jedi.Script(**kwargs)
 
     def sys_path(self):
