@@ -212,8 +212,7 @@ class PythonLanguageServer(MethodDispatcher):
         return flatten(self._hook('pyls_document_symbols', doc_uri))
 
     def execute_command(self, command, arguments):
-        return self._hook('pyls_execute_command', command=command,
-                          arguments=arguments)
+        return self._hook('pyls_execute_command', command=command, arguments=arguments)
 
     def format_document(self, doc_uri):
         return self._hook('pyls_format_document', doc_uri)
