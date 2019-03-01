@@ -189,21 +189,26 @@ class PythonLanguageServer(MethodDispatcher):
         return flatten(self._hook('pyls_code_lens', doc_uri))
 
     def completions(self, doc_uri, position):
-        # TODO: Put the race optional
-        # completions = self._hook('pyls_completions', doc_uri, position=position)
-        completions = _utils.race_hooks(
-            self._hook_caller('pyls_completions'),
-            self._pool,
-            document=self.workspace.get_document(doc_uri) if doc_uri else None,
-            position=position,
-            config=self.config,
-            workspace=self.workspace
-        )
-        return {
-            'isIncomplete': False,
-            'items': completions
-            # 'items': flatten(completions), If None is not returned
-        }
+        rope_enabled = self.config.settings()['plugins']['rope_completion']['enabled']
+        if rope_enabled:
+            completions = _utils.race_hooks(
+                self._hook_caller('pyls_completions'),
+                self._pool,
+                document=self.workspace.get_document(doc_uri) if doc_uri else None,
+                position=position,
+                config=self.config,
+                workspace=self.workspace
+            )
+            return {
+                'isIncomplete': False,
+                'items': completions
+            }
+        else:
+            completions = self._hook('pyls_completions', doc_uri, position=position)
+            return {
+                'isIncomplete': False,
+                'items': flatten(completions)
+            }
 
     def definitions(self, doc_uri, position):
         return flatten(self._hook('pyls_definitions', doc_uri, position=position))
