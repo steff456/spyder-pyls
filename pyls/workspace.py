@@ -3,8 +3,6 @@ import io
 import logging
 import os
 import re
-import imp
-import pkgutil
 
 import jedi
 

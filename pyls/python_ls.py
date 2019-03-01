@@ -202,13 +202,13 @@ class PythonLanguageServer(MethodDispatcher):
             return {
                 'isIncomplete': False,
                 'items': completions
-            }
+                }
         else:
             completions = self._hook('pyls_completions', doc_uri, position=position)
             return {
                 'isIncomplete': False,
                 'items': flatten(completions)
-            }
+                }
 
     def definitions(self, doc_uri, position):
         return flatten(self._hook('pyls_definitions', doc_uri, position=position))
