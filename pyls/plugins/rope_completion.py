@@ -24,7 +24,7 @@ def pyls_completions(document, position, config, workspace):
         'line': position['line'], 'character': max(position['character'] - 1, 0),
     })
     if word == 'import':
-        return []
+        return None
 
     offset = document.offset_at_position(position)
     rope_config = config.settings(document_path=document.path).get('rope', {})
@@ -35,7 +35,7 @@ def pyls_completions(document, position, config, workspace):
         definitions = code_assist(rope_project, document.source, offset, document_rope, maxfixes=3)
     except Exception as e:  # pylint: disable=broad-except
         log.debug("Failed to run Rope code assist: %s", e)
-        return []
+        return None
 
     definitions = sorted_proposals(definitions)
     new_definitions = []
@@ -53,9 +53,7 @@ def pyls_completions(document, position, config, workspace):
         })
     definitions = new_definitions
     log.debug('Finish Rope!!!')
-    if not definitions:
-        return []
-    return definitions
+    return definitions or None
 
 
 def _sort_text(definition):

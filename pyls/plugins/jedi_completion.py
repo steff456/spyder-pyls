@@ -16,7 +16,7 @@ def pyls_completions(document, position, config=None, workspace=None):
         'documentation': _utils.format_docstring(d.docstring()),
         'sortText': _sort_text(d),
         'insertText': d.name
-    } for d in definitions]
+    } for d in definitions] or None
     log.debug('Finish Jedi!')
     return comp
 
