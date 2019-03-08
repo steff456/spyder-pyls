@@ -2,6 +2,7 @@
 
 # Don't complain about unused arguments
 # pylint: disable=W0613
+
 import logging
 from pyls import hookimpl, lsp, _utils
 
