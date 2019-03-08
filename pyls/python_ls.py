@@ -201,7 +201,7 @@ class PythonLanguageServer(MethodDispatcher):
         return {
             'isIncomplete': False,
             'items': flatten(completions) if completions else None
-            }
+        }
 
     def definitions(self, doc_uri, position):
         return flatten(self._hook('pyls_definitions', doc_uri, position=position))
