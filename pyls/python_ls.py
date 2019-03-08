@@ -72,6 +72,7 @@ class PythonLanguageServer(MethodDispatcher):
     def __init__(self, rx, tx, check_parent_process=False):
         self.workspace = None
         self.config = None
+        self._pool = None
 
         self._jsonrpc_stream_reader = JsonRpcStreamReader(rx)
         self._jsonrpc_stream_writer = JsonRpcStreamWriter(tx)
@@ -188,23 +189,19 @@ class PythonLanguageServer(MethodDispatcher):
         rope_enabled = self.config.settings()['plugins']['rope_completion']['enabled']
         if rope_enabled:
             completions = _utils.race_hooks(
-                self._hook_caller('pyls_completions'),
+                self._hook('pyls_completions', doc_uri),
                 self._pool,
                 document=self.workspace.get_document(doc_uri) if doc_uri else None,
                 position=position,
                 config=self.config,
                 workspace=self.workspace
             )
-            return {
-                'isIncomplete': False,
-                'items': flatten(completions) if completions else None
-                }
         else:
             completions = self._hook('pyls_completions', doc_uri, position=position)
-            return {
-                'isIncomplete': False,
-                'items': flatten(completions) if completions else None
-                }
+        return {
+            'isIncomplete': False,
+            'items': flatten(completions) if completions else None
+            }
 
     def definitions(self, doc_uri, position):
         return flatten(self._hook('pyls_definitions', doc_uri, position=position))
