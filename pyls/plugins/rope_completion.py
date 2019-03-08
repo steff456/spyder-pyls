@@ -15,7 +15,8 @@ def pyls_settings():
 
 
 @hookimpl
-def pyls_completions(config, workspace, document, position):
+def pyls_completions(document, position, config, workspace):
+    log.debug('Launching rope ... ')
     # Rope is a bit rubbish at completing module imports, so we'll return None
     word = document.word_at_position({
         # The -1 should really be trying to look at the previous word, but that might be quite expensive
@@ -34,7 +35,7 @@ def pyls_completions(config, workspace, document, position):
         definitions = code_assist(rope_project, document.source, offset, document_rope, maxfixes=3)
     except Exception as e:  # pylint: disable=broad-except
         log.debug("Failed to run Rope code assist: %s", e)
-        return []
+        return None
 
     definitions = sorted_proposals(definitions)
     new_definitions = []
@@ -51,7 +52,7 @@ def pyls_completions(config, workspace, document, position):
             'sortText': _sort_text(d)
         })
     definitions = new_definitions
-
+    log.debug('Finish Rope!!!')
     return definitions or None
 
 

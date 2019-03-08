@@ -33,7 +33,7 @@ print Hello().world
 def test_rope_import_completion(config, workspace):
     com_position = {'line': 0, 'character': 7}
     doc = Document(DOC_URI, DOC)
-    items = pyls_rope_completions(config, workspace, doc, com_position)
+    items = pyls_rope_completions(doc, com_position, config, workspace)
     assert items is None
 
 
@@ -55,7 +55,7 @@ def test_rope_completion(config, workspace):
     com_position = {'line': 1, 'character': 15}
     workspace.put_document(DOC_URI, source=DOC)
     doc = workspace.get_document(DOC_URI)
-    items = pyls_rope_completions(config, workspace, doc, com_position)
+    items = pyls_rope_completions(doc, com_position, config, workspace)
 
     assert items
     assert items[0]['label'] == 'isabs'
