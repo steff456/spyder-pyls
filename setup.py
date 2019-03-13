@@ -36,7 +36,7 @@ setup(
         'future>=0.14.0',
         'futures; python_version<"3.2"',
         'jedi>=0.12',
-        'python-jsonrpc-server',
+        'python-jsonrpc-server>=0.1.0',
         'pluggy'
     ],
 
@@ -51,7 +51,7 @@ setup(
             'pycodestyle',
             'pydocstyle>=2.0.0',
             'pyflakes>=1.6.0',
-            'rope>-0.10.5',
+            'rope>=0.10.5',
             'yapf',
         ],
         'autopep8': ['autopep8'],
@@ -61,7 +61,7 @@ setup(
         'pyflakes': ['pyflakes>=1.6.0'],
         'rope': ['rope>0.10.5'],
         'yapf': ['yapf'],
-        'test': ['tox', 'versioneer', 'pytest', 'mock', 'pytest-cov', 'coverage'],
+        'test': ['versioneer', 'pylint', 'pytest', 'mock', 'pytest-cov', 'coverage'],
     },
 
     # To provide executable scripts, use entry points in preference to the

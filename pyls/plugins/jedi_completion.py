@@ -1,4 +1,8 @@
 # Copyright 2017 Palantir Technologies, Inc.
+
+# Don't complain about unused arguments
+# pylint: disable=W0613
+
 import logging
 from pyls import hookimpl, lsp, _utils
 
@@ -6,9 +10,10 @@ log = logging.getLogger(__name__)
 
 
 @hookimpl
-def pyls_completions(document, position):
+def pyls_completions(document, position, config=None, workspace=None):
+    log.debug('Launch Jedi ...')
     definitions = document.jedi_script(position).completions()
-    return [{
+    comp = [{
         'label': _label(d),
         'kind': _kind(d),
         'detail': _detail(d),
@@ -16,10 +21,12 @@ def pyls_completions(document, position):
         'sortText': _sort_text(d),
         'insertText': d.name
     } for d in definitions] or None
+    log.debug('Finish Jedi!')
+    return comp
 
 
 def _label(definition):
-    if definition.type in ('function', 'method'):
+    if definition.type in ('function', 'method') and hasattr(definition, 'params'):
         params = ', '.join(param.name for param in definition.params)
         return '{}({})'.format(definition.name, params)
 
