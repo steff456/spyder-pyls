@@ -162,6 +162,7 @@ else:
         else:
             return True
 
+
 def race_hooks(hook_caller, pool, **kwargs):
     """Given a pluggy hook spec, execute impls in parallel returning the first non-None result.
 
