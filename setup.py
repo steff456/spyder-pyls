@@ -1,25 +1,43 @@
 #!/usr/bin/env python
-from setuptools import find_packages, setup
-import versioneer
 
+# Standard library imports
+import ast
+import os
+
+# Third party imports
+from setuptools import find_packages, setup
+
+HERE = os.path.abspath(os.path.dirname(__file__))
 README = open('README.rst', 'r').read()
 
 
+def get_version():
+    """Get version."""
+    with open(os.path.join(HERE, 'pyls', '_version.py'), 'r') as f:
+        data = f.read()
+    lines = data.split('\n')
+    for line in lines:
+        if line.startswith('VERSION_INFO'):
+            version_tuple = ast.literal_eval(line.split('=')[-1].strip())
+            version = '.'.join(map(str, version_tuple))
+            break
+    return version
+
+
 setup(
-    name='python-language-server',
+    name='spyder-pyls',
 
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version=versioneer.get_version(),
-    cmdclass=versioneer.get_cmdclass(),
+    version=get_version(),
 
     description='Python Language Server for the Language Server Protocol',
 
     long_description=README,
 
     # The project's main homepage.
-    url='https://github.com/palantir/python-language-server',
+    url='https://github.com/spyder/spyder-pyls',
 
     author='Palantir Technologies, Inc.',
 
@@ -69,9 +87,9 @@ setup(
     # pip to create the appropriate form of executable for the target platform.
     entry_points={
         'console_scripts': [
-            'pyls = pyls.__main__:main',
+            'spyder-pyls = pyls.__main__:main',
         ],
-        'pyls': [
+        'spyder-pyls': [
             'autopep8 = pyls.plugins.autopep8_format',
             'jedi_completion = pyls.plugins.jedi_completion',
             'jedi_definition = pyls.plugins.definition',
