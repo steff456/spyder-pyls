@@ -89,7 +89,7 @@ setup(
         'console_scripts': [
             'spyder-pyls = pyls.__main__:main',
         ],
-        'spyder-pyls': [
+        'spyder_pyls': [
             'autopep8 = pyls.plugins.autopep8_format',
             'jedi_completion = pyls.plugins.jedi_completion',
             'jedi_definition = pyls.plugins.definition',
