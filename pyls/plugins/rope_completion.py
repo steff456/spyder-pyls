@@ -15,7 +15,7 @@ def pyls_settings():
 
 
 @hookimpl
-def pyls_completions(document, position, config, workspace):
+def pyls_completions(config, document, position, workspace=None):
     log.debug('Launching rope ... ')
     # Rope is a bit rubbish at completing module imports, so we'll return None
     word = document.word_at_position({
