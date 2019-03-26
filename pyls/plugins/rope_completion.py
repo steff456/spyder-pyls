@@ -16,7 +16,7 @@ def pyls_settings():
 
 @hookimpl
 def pyls_completions(config, document, position, workspace):
-    log.debug('Launching rope ... ')
+    log.debug('Launching Rope...')
     # Rope is a bit rubbish at completing module imports, so we'll return None
     word = document.word_at_position({
         # The -1 should really be trying to look at the previous word, but that might be quite expensive
