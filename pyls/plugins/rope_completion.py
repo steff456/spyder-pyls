@@ -15,7 +15,7 @@ def pyls_settings():
 
 
 @hookimpl
-def pyls_completions(config, document, position, workspace=None):
+def pyls_completions(config, document, position, workspace):
     log.debug('Launching rope ... ')
     # Rope is a bit rubbish at completing module imports, so we'll return None
     word = document.word_at_position({
@@ -29,12 +29,18 @@ def pyls_completions(config, document, position, workspace=None):
     offset = document.offset_at_position(position)
     rope_config = config.settings(document_path=document.path).get('rope', {})
     rope_project = workspace._rope_project_builder(rope_config)
-    document_rope = document._rope_resource(rope_config)
+
+    # Rope resources can't be created for non-existing files
+    try:
+        rope_resource = document._rope_resource(rope_config)
+    except Exception as e:  # pylint: disable=broad-except
+        log.error("Failed to create Rope resource: %s", e)
+        rope_resource = None
 
     try:
-        definitions = code_assist(rope_project, document.source, offset, document_rope, maxfixes=3)
+        definitions = code_assist(rope_project, document.source, offset, rope_resource, maxfixes=3)
     except Exception as e:  # pylint: disable=broad-except
-        log.debug("Failed to run Rope code assist: %s", e)
+        log.error("Failed to run Rope code assist: %s", e)
         return None
 
     definitions = sorted_proposals(definitions)
