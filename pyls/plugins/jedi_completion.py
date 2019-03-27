@@ -45,6 +45,7 @@ _TYPE_MAP = {
 
 @hookimpl
 def pyls_completions(config, document, position, workspace=None):
+    log.debug('Launching Jedi...')
     definitions = document.jedi_script(position).completions()
     if not definitions:
         return None
@@ -52,6 +53,7 @@ def pyls_completions(config, document, position, workspace=None):
     settings = config.plugin_settings('jedi_completion', document_path=document.path)
     include_params = settings.get('include_params', True)
 
+    log.debug('Finish Jedi!!!')
     return [_format_completion(d, include_params) for d in definitions] or None
 
 

@@ -117,10 +117,13 @@ class PythonLanguageServer(MethodDispatcher):
         self._jsonrpc_stream_reader.close()
         self._jsonrpc_stream_writer.close()
 
+    def _hook_caller(self, hook_name):
+        return self.config.plugin_manager.subset_hook_caller(hook_name, self.config.disabled_plugins)
+
     def _hook(self, hook_name, doc_uri=None, **kwargs):
         """Calls hook_name and returns a list of results from all registered handlers"""
         doc = self.workspace.get_document(doc_uri) if doc_uri else None
-        hook_handlers = self.config.plugin_manager.subset_hook_caller(hook_name, self.config.disabled_plugins)
+        hook_handlers = self._hook_caller(hook_name)
         return hook_handlers(config=self.config, workspace=self.workspace, document=doc, **kwargs)
 
     def capabilities(self):
@@ -193,7 +196,7 @@ class PythonLanguageServer(MethodDispatcher):
         rope_enabled = self.config.settings()['plugins']['rope_completion']['enabled']
         if rope_enabled:
             completions = _utils.race_hooks(
-                self._hook('pyls_completions', doc_uri),
+                self._hook_caller('pyls_completions'),
                 self._pool,
                 document=self.workspace.get_document(doc_uri) if doc_uri else None,
                 position=position,
@@ -202,9 +205,10 @@ class PythonLanguageServer(MethodDispatcher):
             )
         else:
             completions = self._hook('pyls_completions', doc_uri, position=position)
+            completions = flatten(completions) if completions else None
         return {
             'isIncomplete': False,
-            'items': flatten(completions) if completions else None
+            'items': completions
         }
 
     def definitions(self, doc_uri, position):
