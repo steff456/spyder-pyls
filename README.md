@@ -1,162 +1,98 @@
-Python Language Server
-======================
+# Python Language Server
 
-.. image:: https://circleci.com/gh/palantir/python-language-server.svg?style=shield
-    :target: https://circleci.com/gh/palantir/python-language-server
+[![Circle CI build status](https://circleci.com/gh/spyder-ide/spyder-pyls.svg?style=shield)](https://circleci.com/gh/spyder-ide/spyder-pyls)
+[![Appveyor build status](https://ci.appveyor.com/api/projects/status/dicdkl5kbjtrcw59?svg=true)](https://ci.appveyor.com/project/spyder-ide/spyder-pyls)
+[![license](https://img.shields.io/github/license/spyder-ide/spyder-pyls.svg)](./LICENSE.txt)
+[![Join the chat at https://gitter.im/spyder-ide/public](https://badges.gitter.im/spyder-ide/spyder.svg)](https://gitter.im/spyder-ide/public)<br>
+[![OpenCollective Backers](https://opencollective.com/spyder/backers/badge.svg?color=blue)](#backers)
+[![OpenCollective Sponsors](https://opencollective.com/spyder/sponsors/badge.svg?color=blue)](#sponsors)
 
-.. image:: https://ci.appveyor.com/api/projects/status/mdacv6fnif7wonl0?svg=true
-    :target: https://ci.appveyor.com/project/gatesn/python-language-server
+A Python 2.7 and 3.4+ implementation of the [Language Server Protocol](https://github.com/Microsoft/language-server-protocol).
 
-.. image:: https://img.shields.io/github/license/palantir/python-language-server.svg
-     :target: https://github.com/palantir/python-language-server/blob/master/LICENSE
+## Installation
 
-A Python 2.7 and 3.4+ implementation of the `Language Server Protocol`_.
+The base language server requires [Jedi](https://github.com/davidhalter/jedi) to provide Completions, Definitions, Hover, References, Signature Help, and Symbols:
 
-Installation
-------------
-
-The base language server requires Jedi_ to provide Completions, Definitions, Hover, References, Signature Help, and
-Symbols:
-
-``pip install python-language-server``
+``pip install spyder-pyls``
 
 If the respective dependencies are found, the following optional providers will be enabled:
 
-* Rope_ for Completions and renaming
-* Pyflakes_ linter to detect various errors
-* McCabe_ linter for complexity checking
-* pycodestyle_ linter for style checking
-* pydocstyle_ linter for docstring style checking (disabled by default)
-* autopep8_ for code formatting
-* YAPF_ for code formatting (preferred over autopep8)
+* [Rope](https://github.com/python-rope/rope) for completions and renaming
+* [Pyflakes](https://github.com/PyCQA/pyflakes) linter to detect various errors
+* [McCabe](https://github.com/PyCQA/mccabe) linter for complexity checking
+* [pycodestyle](https://github.com/PyCQA/pycodestyle) linter for style checking
+* [pydocstyle](https://github.com/PyCQA/pydocstyle) linter for docstring style checking (disabled by default)
+* [autopep8](https://github.com/hhatto/autopep8) for code formatting
+* [YAPF](https://github.com/google/yapf) for code formatting (preferred over autopep8)
 
-Optional providers can be installed using the `extras` syntax. To install YAPF_ formatting for example:
+Optional providers can be installed using the `extras` syntax. To install [YAPF](https://github.com/google/yapf) formatting for example:
 
-``pip install 'python-language-server[yapf]'``
+`pip install 'spyder-pyls[yapf]'`
 
 All optional providers can be installed using:
 
-``pip install 'python-language-server[all]'``
+`pip install 'spyder-pyls[all]'`
 
-If you get an error similar to ``'install_requires' must be a string or list of strings`` then please upgrade setuptools before trying again. 
+If you get an error similar to `'install_requires' must be a string or list of strings` then please upgrade setuptools before trying again. 
 
-``pip install -U setuptools``
+`pip install -U setuptools`
 
-3rd Party Plugins
-~~~~~~~~~~~~~~~~~
+## 3rd Party Plugins
+
 Installing these plugins will add extra functionality to the language server:
 
-* pyls-mypy_ Mypy type checking for Python 3
-* pyls-isort_ Isort import sort code formatting
-* pyls-black_ for code formatting using Black_
+* [pyls-mypy](https://github.com/tomv564/pyls-mypy) Mypy type checking for Python 3
+* [pyls-isort](https://github.com/paradoxxxzero/pyls-isort) Isort import sort code formatting
+* [pyls-black](https://github.com/rupert/pyls-black) for code formatting using [Black(https://github.com/ambv/black)
 
 Please see the above repositories for examples on how to write plugins for the Python Language Server. Please file an
 issue if you require assistance writing a plugin.
 
-Configuration
--------------
+## Configuration
 
 Configuration is loaded from zero or more configuration sources. Currently implemented are:
 
-* pycodestyle: discovered in ~/.config/pycodestyle, setup.cfg, tox.ini and pycodestyle.cfg.
-* flake8: discovered in ~/.config/flake8, setup.cfg, tox.ini and flake8.cfg
+* pycodestyle: discovered in `~/.config/pycodestyle`, `setup.cfg`, `tox.ini` and `pycodestyle.cfg`
+* flake8: discovered in `~/.config/flake8`, `setup.cfg`, `tox.ini` and `flake8.cfg`
 
-The default configuration source is pycodestyle. Change the `pyls.configurationSources` setting to `['flake8']` in
-order to respect flake8 configuration instead.
+The default configuration source is pycodestyle. 
 
-Overall configuration is computed first from user configuration (in home directory), overridden by configuration
-passed in by the language client, and then overriden by configuration discovered in the workspace.
+## Language Server Features
 
-To enable pydocstyle for linting docstrings add the following setting in your LSP configuration:
-```
-"pyls.plugins.pydocstyle.enabled": true
-```
+* Code completion
 
-Language Server Features
-------------------------
+![Screenshot of Spyder's code completion](./resources/spyder_code_completion.png)
 
-Auto Completion:
+* Code linting (Warnings and errors)
 
-.. image:: https://raw.githubusercontent.com/palantir/python-language-server/develop/resources/auto-complete.gif
+![Screenshot of Spyder's linting info](./resources/spyder_linting.png)
 
-Code Linting with pycodestyle and pyflakes:
-
-.. image:: https://raw.githubusercontent.com/palantir/python-language-server/develop/resources/linting.gif
-
-Signature Help:
-
-.. image:: https://raw.githubusercontent.com/palantir/python-language-server/develop/resources/signature-help.gif
-
-Go to definition:
-
-.. image:: https://raw.githubusercontent.com/palantir/python-language-server/develop/resources/goto-definition.gif
-
-Hover:
-
-.. image:: https://raw.githubusercontent.com/palantir/python-language-server/develop/resources/hover.gif
-
-Find References:
-
-.. image:: https://raw.githubusercontent.com/palantir/python-language-server/develop/resources/references.gif
-
-Document Symbols:
-
-.. image:: https://raw.githubusercontent.com/palantir/python-language-server/develop/resources/document-symbols.gif
-
-Document Formatting:
-
-.. image:: https://raw.githubusercontent.com/palantir/python-language-server/develop/resources/document-format.gif
-
-Development
------------
+## Development
 
 To run the test suite:
 
 ``pip install .[test] && tox``
 
-Develop against VS Code
-=======================
+## Develop against Spyder
 
-The Python language server can be developed against a local instance of Visual Studio Code.
+The Python language server can be developed against a local instance of Spyder IDE.
 
-1. Install `VSCode for Mac <http://code.visualstudio.com/docs/?dv=osx>`_
-2. From within VSCode View -> Command Palette, then type *shell* and run ``install 'code' command in PATH``
+1. Install it with `pip install -e .`
+2. Start Spyder in debug mode (`python bootstrap.py --debug`)
+3. Check logs for both client and server in `~/.spyder-py3/lsp-logs`
 
-.. code-block:: bash
-
-    # Setup a virtual env
-    virtualenv env
-    . env/bin/activate
-
-    # Install pyls
-    pip install .
-
-    # Install the vscode-client extension
-    cd vscode-client
-    yarn install
-
-    # Run VSCode which is configured to use pyls
-    # See the bottom of vscode-client/src/extension.ts for info
-    yarn run vscode -- $PWD/../
-
-Then to debug, click View -> Output and in the dropdown will be pyls.
-To refresh VSCode, press `Cmd + r`
-
-License
--------
+## License
 
 This project is made available under the MIT License.
 
-.. _Language Server Protocol: https://github.com/Microsoft/language-server-protocol
-.. _Jedi: https://github.com/davidhalter/jedi
-.. _Rope: https://github.com/python-rope/rope
-.. _Pyflakes: https://github.com/PyCQA/pyflakes
-.. _McCabe: https://github.com/PyCQA/mccabe
-.. _pycodestyle: https://github.com/PyCQA/pycodestyle
-.. _pydocstyle: https://github.com/PyCQA/pydocstyle
-.. _YAPF: https://github.com/google/yapf
-.. _autopep8: https://github.com/hhatto/autopep8
-.. _pyls-mypy: https://github.com/tomv564/pyls-mypy
-.. _pyls-isort: https://github.com/paradoxxxzero/pyls-isort
-.. _pyls-black: https://github.com/rupert/pyls-black
-.. _Black: https://github.com/ambv/black
+## Sponsors
+
+Spyder is funded thanks to the generous support of
+
+
+[![Quansight](https://static.wixstatic.com/media/095d2c_2508c560e87d436ea00357abc404cf1d~mv2.png/v1/crop/x_0,y_9,w_915,h_329/fill/w_380,h_128,al_c,usm_0.66_1.00_0.01/095d2c_2508c560e87d436ea00357abc404cf1d~mv2.png)](https://www.quansight.com/)[![Numfocus](https://i2.wp.com/numfocus.org/wp-content/uploads/2017/07/NumFocus_LRG.png?fit=320%2C148&ssl=1)](https://numfocus.org/)
+
+
+and the donations we have received from our users around the world through [Open Collective](https://opencollective.com/spyder/):
+
+[![Sponsors](https://opencollective.com/spyder/sponsors.svg)](https://opencollective.com/spyder#support)
