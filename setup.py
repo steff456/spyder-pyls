@@ -8,7 +8,6 @@ import os
 from setuptools import find_packages, setup
 
 HERE = os.path.abspath(os.path.dirname(__file__))
-README = open('README.rst', 'r').read()
 
 
 def get_version():
@@ -24,6 +23,13 @@ def get_version():
     return version
 
 
+def get_readme():
+    """Load README.md file."""
+    with open('README.md', 'r') as fh:
+        data = fh.read()
+    return data
+
+
 setup(
     name='spyder-pyls',
 
@@ -34,12 +40,13 @@ setup(
 
     description='Python Language Server for the Language Server Protocol',
 
-    long_description=README,
+    long_description=get_readme(),
+    long_description_content_type='text/markdown',
 
     # The project's main homepage.
     url='https://github.com/spyder/spyder-pyls',
 
-    author='Palantir Technologies, Inc.',
+    author='Palantir Technologies, Inc. and the Spyder development team',
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
@@ -87,9 +94,9 @@ setup(
     # pip to create the appropriate form of executable for the target platform.
     entry_points={
         'console_scripts': [
-            'spyder-pyls = pyls.__main__:main',
+            'pyls = pyls.__main__:main',
         ],
-        'spyder_pyls': [
+        'pyls': [
             'autopep8 = pyls.plugins.autopep8_format',
             'jedi_completion = pyls.plugins.jedi_completion',
             'jedi_definition = pyls.plugins.definition',
