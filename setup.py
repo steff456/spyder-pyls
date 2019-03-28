@@ -1,27 +1,52 @@
 #!/usr/bin/env python
-from setuptools import find_packages, setup
-import versioneer
 
-README = open('README.rst', 'r').read()
+# Standard library imports
+import ast
+import os
+
+# Third party imports
+from setuptools import find_packages, setup
+
+HERE = os.path.abspath(os.path.dirname(__file__))
+
+
+def get_version():
+    """Get version."""
+    with open(os.path.join(HERE, 'pyls', '_version.py'), 'r') as f:
+        data = f.read()
+    lines = data.split('\n')
+    for line in lines:
+        if line.startswith('VERSION_INFO'):
+            version_tuple = ast.literal_eval(line.split('=')[-1].strip())
+            version = '.'.join(map(str, version_tuple))
+            break
+    return version
+
+
+def get_readme():
+    """Load README.md file."""
+    with open('README.md', 'r') as fh:
+        data = fh.read()
+    return data
 
 
 setup(
-    name='python-language-server',
+    name='spyder-pyls',
 
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version=versioneer.get_version(),
-    cmdclass=versioneer.get_cmdclass(),
+    version=get_version(),
 
     description='Python Language Server for the Language Server Protocol',
 
-    long_description=README,
+    long_description=get_readme(),
+    long_description_content_type='text/markdown',
 
     # The project's main homepage.
-    url='https://github.com/palantir/python-language-server',
+    url='https://github.com/spyder/spyder-pyls',
 
-    author='Palantir Technologies, Inc.',
+    author='Palantir Technologies, Inc. and the Spyder development team',
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
