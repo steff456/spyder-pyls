@@ -63,7 +63,11 @@ setup(
         'backports.functools_lru_cache; python_version<"3.2"',
         'jedi>=0.13.2',
         'python-jsonrpc-server>=0.1.0',
-        'pluggy'
+        'pluggy',
+        'pycodestyle',
+        'pydocstyle>=2.0.0',
+        'pyflakes>=1.6.0',
+        'rope>=0.10.5'
     ],
 
     # List additional groups of dependencies here (e.g. development
@@ -74,22 +78,14 @@ setup(
         'all': [
             'autopep8',
             'mccabe',
-            'pycodestyle',
-            'pydocstyle>=2.0.0',
-            'pyflakes>=1.6.0',
             'pylint',
-            'rope>=0.10.5',
             'yapf',
         ],
         'autopep8': ['autopep8'],
         'mccabe': ['mccabe'],
-        'pycodestyle': ['pycodestyle'],
-        'pydocstyle': ['pydocstyle>=2.0.0'],
-        'pyflakes': ['pyflakes>=1.6.0'],
         'pylint': ['pylint'],
-        'rope': ['rope>0.10.5'],
         'yapf': ['yapf'],
-        'test': ['versioneer', 'pylint', 'pytest', 'mock', 'pytest-cov', 'coverage'],
+        'test': ['pylint', 'pytest', 'mock', 'pytest-cov', 'coverage'],
     },
 
     # To provide executable scripts, use entry points in preference to the

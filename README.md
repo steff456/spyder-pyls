@@ -7,7 +7,7 @@
 [![OpenCollective Backers](https://opencollective.com/spyder/backers/badge.svg?color=blue)](#backers)
 [![OpenCollective Sponsors](https://opencollective.com/spyder/sponsors/badge.svg?color=blue)](#sponsors)
 
-A Python 2.7 and 3.4+ implementation of the [Language Server Protocol](https://github.com/Microsoft/language-server-protocol).
+A Python 2.7 and 3.5+ implementation of the [Language Server Protocol](https://github.com/Microsoft/language-server-protocol).
 
 ## Installation
 
