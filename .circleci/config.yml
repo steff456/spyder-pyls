@@ -30,14 +30,6 @@ jobs:
     - run: pycodestyle pyls test
     - run: pyflakes pyls test
 
-  publish:
-    docker:
-      - image: "python:3.4-stretch"
-    steps:
-      - checkout
-      - run: ./scripts/circle/pypi.sh
-
-
 workflows:
   version: 2
   build:
