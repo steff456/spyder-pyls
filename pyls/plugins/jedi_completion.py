@@ -55,6 +55,7 @@ def pyls_completions(config, document, position, workspace=None):
 
     settings = config.plugin_settings('jedi_completion', document_path=document.path)
     should_include_params = settings.get('include_params')
+    log.debug('Finish Jedi!!!')
 
     return [_format_completion(d, snippet_support and should_include_params) for d in definitions] or None
 
