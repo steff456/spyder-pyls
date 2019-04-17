@@ -4,6 +4,8 @@ import inspect
 import logging
 import os
 import threading
+import trio
+import sys
 
 log = logging.getLogger(__name__)
 
@@ -174,15 +176,30 @@ def race_hooks(hook_caller, pool, **kwargs):
     if not impls:
         return None
 
-    def _apply(impl):
-        return impl, impl.function(**kwargs)
+    async def race(impls):
+        send_channel, receive_channel = trio.open_memory_channel(0)
+
+        async def _apply(impl):
+            return impl, impl.function(**kwargs)
+
+        async def jockey(impl):
+            await send_channel.send(await _apply(impl))
+
+        async with trio.open_nursery() as nursery:
+            for impl in impls:
+                nursery.start_soon(jockey, impl)
+
+            winner = await receive_channel.receive()
+            nursery.cancel_scope.cancel()
+            return winner
 
     # imap unordered gives us an iterator over the items in the order they finish.
     # We have to be careful to set chunksize to 1 to ensure hooks each get their own thread.
     # Unfortunately, there's no way to interrupt these threads, so we just have to leave them be.
     result = None
     while result is None:
-        first_impl, result = next(pool.imap_unordered(_apply, impls, chunksize=1))
+        #  first_impl, result = next(pool.imap_unordered(_apply, impls, chunksize=1))
+        first_impl, result = trio.run(race, impls)
     log.debug("Hook from plugin %s returned: %s", first_impl.plugin_name,
               result)
     return result

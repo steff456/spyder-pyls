@@ -3,6 +3,7 @@ import logging
 import socketserver
 import threading
 from multiprocessing import dummy as multiprocessing
+import sys
 
 from pyls_jsonrpc.dispatchers import MethodDispatcher
 from pyls_jsonrpc.endpoint import Endpoint
@@ -195,7 +196,8 @@ class PythonLanguageServer(MethodDispatcher):
 
     def completions(self, doc_uri, position):
         rope_enabled = self.config.settings()['plugins']['rope_completion']['enabled']
-        if rope_enabled:
+        python_version = sys.version_info[0]
+        if rope_enabled and python_version == 3:
             completions = _utils.race_hooks(
                 self._hook_caller('pyls_completions'),
                 self._pool,
