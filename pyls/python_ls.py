@@ -2,7 +2,6 @@
 import logging
 import socketserver
 import threading
-from multiprocessing import dummy as multiprocessing
 import sys
 
 from pyls_jsonrpc.dispatchers import MethodDispatcher
@@ -18,7 +17,6 @@ log = logging.getLogger(__name__)
 LINT_DEBOUNCE_S = 0.5  # 500 ms
 PARENT_PROCESS_WATCH_INTERVAL = 10  # 10 s
 MAX_WORKERS = 64
-PLUGGY_RACE_POOL_SIZE = 5
 PYTHON_FILE_EXTENSIONS = ('.py', '.pyi')
 CONFIG_FILEs = ('pycodestyle.cfg', 'setup.cfg', 'tox.ini', '.flake8')
 
@@ -77,7 +75,6 @@ class PythonLanguageServer(MethodDispatcher):
     def __init__(self, rx, tx, check_parent_process=False):
         self.workspace = None
         self.config = None
-        self._pool = None
 
         self._jsonrpc_stream_reader = JsonRpcStreamReader(rx)
         self._jsonrpc_stream_writer = JsonRpcStreamWriter(tx)
@@ -166,7 +163,6 @@ class PythonLanguageServer(MethodDispatcher):
         self.config = config.Config(rootUri, initializationOptions or {},
                                     processId, _kwargs.get('capabilities', {}))
         self._dispatchers = self._hook('pyls_dispatchers')
-        self._pool = multiprocessing.Pool(PLUGGY_RACE_POOL_SIZE)
         self._hook('pyls_initialize')
 
         if self._check_parent_process and processId is not None:
@@ -200,7 +196,6 @@ class PythonLanguageServer(MethodDispatcher):
         if rope_enabled and python_version == 3:
             completions = _utils.race_hooks(
                 self._hook_caller('pyls_completions'),
-                self._pool,
                 document=self.workspace.get_document(doc_uri) if doc_uri else None,
                 position=position,
                 config=self.config,

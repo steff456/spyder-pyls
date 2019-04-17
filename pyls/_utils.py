@@ -165,7 +165,7 @@ else:
             return True
 
 
-def race_hooks(hook_caller, pool, **kwargs):
+def race_hooks(hook_caller, **kwargs):
     """Given a pluggy hook spec, execute impls in parallel returning the first non-None result.
 
     Note this does not support a lot of pluggy functionality, e.g. hook wrappers.
