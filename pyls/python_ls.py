@@ -19,6 +19,7 @@ PARENT_PROCESS_WATCH_INTERVAL = 10  # 10 s
 MAX_WORKERS = 64
 PYTHON_FILE_EXTENSIONS = ('.py', '.pyi')
 CONFIG_FILEs = ('pycodestyle.cfg', 'setup.cfg', 'tox.ini', '.flake8')
+PY3 = sys.version[0] == '3'
 
 
 class _StreamHandlerWrapper(socketserver.StreamRequestHandler, object):
@@ -192,8 +193,7 @@ class PythonLanguageServer(MethodDispatcher):
 
     def completions(self, doc_uri, position):
         rope_enabled = self.config.settings()['plugins']['rope_completion']['enabled']
-        python_version = sys.version_info[0]
-        if rope_enabled and python_version == 3:
+        if rope_enabled and PY3:
             completions = _utils.race_hooks(
                 self._hook_caller('pyls_completions'),
                 document=self.workspace.get_document(doc_uri) if doc_uri else None,

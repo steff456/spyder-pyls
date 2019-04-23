@@ -67,7 +67,8 @@ setup(
         'pycodestyle',
         'pydocstyle>=2.0.0',
         'pyflakes>=1.6.0',
-        'rope>=0.10.5'
+        'rope>=0.10.5',
+        'trio; python_version>="3.5"'
     ],
 
     # List additional groups of dependencies here (e.g. development
