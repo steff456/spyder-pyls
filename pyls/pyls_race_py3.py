@@ -1,6 +1,7 @@
 import trio
 
 
+# pylint: disable=syntax-error
 def async_race(impls, **kwargs):
     """Create  the race between rope and jedi using async functions."""
     async def race(impls):

@@ -9,8 +9,10 @@ import sys
 log = logging.getLogger(__name__)
 PY3 = sys.version[0] == '3'
 if PY3:
+    # noqa pylint: disable=import-error
     from .pyls_race_py3 import async_race
 else:
+    # noqa pylint: disable=import-error
     from .pyls_race_py2 import async_race
 
 
