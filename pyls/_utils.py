@@ -4,11 +4,14 @@ import inspect
 import logging
 import os
 import threading
-import trio
 import sys
 
 log = logging.getLogger(__name__)
 PY3 = sys.version[0] == '3'
+if PY3:
+    from .pyls_race_py3 import async_race
+else:
+    from .pyls_race_py2 import async_race
 
 
 def debounce(interval_s, keyed_by=None):
@@ -181,30 +184,3 @@ def race_hooks(hook_caller, **kwargs):
     log.debug("Hook from plugin %s returned: %s", first_impl.plugin_name,
               result)
     return result
-
-
-def async_race(impls, **kwargs):
-    """Create the race between rope and jedi using async functions."""
-    if PY3:
-        async def race(impls):
-            send_channel, receive_channel = trio.open_memory_channel(0)
-
-            async def _apply(impl):
-                return impl, impl.function(**kwargs)
-
-            async def jockey(impl):
-                if impl.plugin_name == 'rope_completion':
-                    await trio.sleep(0.1)
-                await send_channel.send(await _apply(impl))
-
-            async with trio.open_nursery() as nursery:
-                for impl in impls:
-                    nursery.start_soon(jockey, impl)
-
-                winner = await receive_channel.receive()
-                if winner is not None or winner is []:
-                    nursery.cancel_scope.cancel()
-                    return winner
-        return trio.run(race, impls)
-    else:
-        return None
