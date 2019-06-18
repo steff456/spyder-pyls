@@ -147,7 +147,7 @@ class PythonLanguageServer(MethodDispatcher):
             'referencesProvider': True,
             'renameProvider': True,
             'signatureHelpProvider': {
-                'triggerCharacters': ['(', ',']
+                'triggerCharacters': ['(', ',', '=']
             },
             'textDocumentSync': lsp.TextDocumentSyncKind.INCREMENTAL,
             'experimental': merge(self._hook('pyls_experimental_capabilities'))

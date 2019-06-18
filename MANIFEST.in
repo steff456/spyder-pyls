@@ -1,4 +1,0 @@
-include README.md
-include pyls/_version.py
-include LICENSE.txt
-recursive-include test *.py
